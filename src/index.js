@@ -2,6 +2,14 @@ const { search, Separator, select, confirm, input, password, checkbox } = requir
 const mineflayer = require('mineflayer');
 const chalk = require('chalk').default;
 
+// TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
+// TODO: save server cahts in file
+// TODO: user can also chat
+
+
+const operators = ['+', '-', '*', '/'];
+const solveMathQuestions = true;
+
 async function main() {
   console.clear();
 
@@ -103,9 +111,27 @@ async function SpawnBot(bot) {
 
 //SpawnBot(bot);
 
+
+
+
+
+function solveMathQuestion(question,bot) {
+  if (/\d/.test(question)) {
+    for (let operator of operators) {
+      if (question.includes(operator)) {
+        let match = question.match(/\d+\s*[\+\-\*\/]\s*\d+/);
+        var result = eval(match[0]);
+        bot.chat(result.toString());
+      }
+
+    }
+  }
+
+
+}
 async function ListenForChat(bot) {
+
   bot.on('chat', (username, message) => {
-    console.log(chalk.yellow(`${username}` + chalk.white(': ') + chalk.green(message)));
     if (message === 'gg') {
       bot.chat('gg');
     }else if (message === "o/" ) {
@@ -113,7 +139,35 @@ async function ListenForChat(bot) {
     }else if (message === "gn") {
       bot.chat('gn');
     }
+
+    if (solveMathQuestions) {
+      try {
+        solveMathQuestion(message,bot);
+      }catch (error) {
+        console.error('Error solving math question:', error);
+      }
+
+    }
+
+
+
+    console.log(chalk.yellow(`${username}` + chalk.white(': ') + chalk.green(message)));
+
+
   });
+
+  // listen to standard input for user messages
+  process.stdin.on('data', (data) => {
+    const message = data.toString().trim();
+    if (message && message !== "exit") {
+      bot.chat(message);
+    }
+    if (message === "exit") {
+      bot.quit();
+      process.exit(0);
+    }
+  });
+
 }
 
 //ListenForChat();
