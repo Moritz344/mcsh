@@ -1,2 +1,2 @@
 
-node index.js  play.thirdplacemc.net pennti microsoft 1.19.4
+node index.js  mcpvp.club pennti microsoft 1.21

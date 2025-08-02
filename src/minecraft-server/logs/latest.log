@@ -1,0 +1,205 @@
+[21:32:57] [ServerMain/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[21:32:58] [ServerMain/INFO]: Loaded 1290 recipes
+[21:32:58] [ServerMain/INFO]: Loaded 1399 advancements
+[21:32:58] [Server thread/INFO]: Starting minecraft server version 1.21
+[21:32:58] [Server thread/INFO]: Loading properties
+[21:32:58] [Server thread/INFO]: Default game type: SURVIVAL
+[21:32:58] [Server thread/INFO]: Generating keypair
+[21:32:58] [Server thread/INFO]: Starting Minecraft server on *:25565
+[21:32:58] [Server thread/INFO]: Using epoll channel type
+[21:32:58] [Server thread/WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[21:32:58] [Server thread/WARN]: The server will make no attempt to authenticate usernames. Beware.
+[21:32:58] [Server thread/WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[21:32:58] [Server thread/WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[21:32:58] [Server thread/INFO]: Preparing level "world"
+[21:32:59] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[21:32:59] [Worker-Main-7/INFO]: Preparing spawn area: 0%
+[21:32:59] [Server thread/INFO]: Time elapsed: 186 ms
+[21:32:59] [Server thread/INFO]: Done (0.705s)! For help, type "help"
+[21:33:07] [Server thread/INFO]: pennti[/127.0.0.1:48706] logged in with entity id 90 at (378.5, 69.0, 465.5)
+[21:33:07] [Server thread/INFO]: pennti joined the game
+[21:33:09] [Server thread/INFO]: [Not Secure] <pennti> 1
+[21:33:10] [Server thread/INFO]: [Not Secure] <pennti> qwqw
+[21:33:10] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:33:11] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:33:11] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:33:11] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:33:12] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:33:12] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:33:49] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:33:49] [Server thread/INFO]: pennti left the game
+[21:33:49] [Server thread/INFO]: pennti[/127.0.0.1:37460] logged in with entity id 333 at (378.5, 69.0, 465.5)
+[21:33:49] [Server thread/INFO]: pennti joined the game
+[21:33:51] [Server thread/INFO]: [Not Secure] <pennti> h
+[21:33:58] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:33:58] [Server thread/INFO]: pennti left the game
+[21:34:52] [Server thread/INFO]: pennti[/127.0.0.1:52656] logged in with entity id 560 at (378.5, 69.0, 465.5)
+[21:34:52] [Server thread/INFO]: pennti joined the game
+[21:34:53] [Server thread/INFO]: [Not Secure] <pennti> e
+[21:34:55] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:34:55] [Server thread/INFO]: pennti left the game
+[21:35:09] [Server thread/INFO]: pennti[/127.0.0.1:40590] logged in with entity id 785 at (378.5, 69.0, 465.5)
+[21:35:09] [Server thread/INFO]: pennti joined the game
+[21:35:11] [Server thread/INFO]: [Not Secure] <pennti> g
+[21:35:13] [Server thread/INFO]: [Not Secure] <pennti> g
+[21:35:15] [Server thread/INFO]: [Not Secure] <pennti> g
+[21:35:16] [Server thread/INFO]: [Not Secure] <pennti> g
+[21:35:17] [Server thread/INFO]: [Not Secure] <pennti> g
+[21:35:18] [Server thread/INFO]: [Not Secure] <pennti> g
+[21:35:28] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:35:28] [Server thread/INFO]: pennti left the game
+[21:35:29] [Server thread/INFO]: pennti[/127.0.0.1:35536] logged in with entity id 1016 at (378.5, 69.0, 465.5)
+[21:35:29] [Server thread/INFO]: pennti joined the game
+[21:35:31] [Server thread/INFO]: [Not Secure] <pennti> hey
+[21:35:33] [Server thread/INFO]: [Not Secure] <pennti> h
+[21:35:35] [Server thread/INFO]: [Not Secure] <pennti> we
+[21:35:38] [Server thread/INFO]: [Not Secure] <pennti> lol
+[21:35:39] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:35:39] [Server thread/INFO]: pennti left the game
+[21:38:42] [Server thread/INFO]: pennti[/127.0.0.1:42158] logged in with entity id 1253 at (378.5, 69.0, 465.5)
+[21:38:42] [Server thread/INFO]: pennti joined the game
+[21:38:43] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:44] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:45] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:45] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:45] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:46] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:46] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:46] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:46] [Server thread/INFO]: [Not Secure] <pennti> ww
+[21:38:46] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:47] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:47] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:47] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:47] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:38:48] [Server thread/INFO]: [Not Secure] <pennti> ww
+[21:38:48] [Server thread/INFO]: pennti lost connection: Kicked for spamming
+[21:38:48] [Server thread/INFO]: pennti left the game
+[21:38:48] [Server thread/WARN]: handleDisconnection() called twice
+[21:38:54] [Server thread/INFO]: pennti[/127.0.0.1:33998] logged in with entity id 1495 at (378.5, 69.0, 465.5)
+[21:38:54] [Server thread/INFO]: pennti joined the game
+[21:38:55] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:55] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:56] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:56] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:56] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:56] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:57] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:57] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:57] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:57] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:58] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:58] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:58] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:58] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:38:58] [Server thread/INFO]: pennti lost connection: Kicked for spamming
+[21:38:58] [Server thread/INFO]: pennti left the game
+[21:39:10] [Server thread/INFO]: pennti[/127.0.0.1:53538] logged in with entity id 1739 at (378.5, 69.0, 465.5)
+[21:39:10] [Server thread/INFO]: pennti joined the game
+[21:39:33] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:39:33] [Server thread/INFO]: pennti left the game
+[21:39:34] [Server thread/INFO]: pennti[/127.0.0.1:34786] logged in with entity id 1998 at (378.5, 69.0, 465.5)
+[21:39:34] [Server thread/INFO]: pennti joined the game
+[21:39:37] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:39:37] [Server thread/INFO]: pennti left the game
+[21:39:38] [Server thread/INFO]: pennti[/127.0.0.1:34798] logged in with entity id 2239 at (378.5, 69.0, 465.5)
+[21:39:38] [Server thread/INFO]: pennti joined the game
+[21:39:57] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:39:57] [Server thread/INFO]: pennti left the game
+[21:39:58] [Server thread/INFO]: pennti[/127.0.0.1:60468] logged in with entity id 2496 at (378.5, 69.0, 465.5)
+[21:39:58] [Server thread/INFO]: pennti joined the game
+[21:40:00] [Server thread/INFO]: [Not Secure] <pennti> e
+[21:40:10] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:10] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:11] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:11] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:11] [Server thread/INFO]: [Not Secure] <pennti> ff
+[21:40:11] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:12] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:12] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:12] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:12] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:12] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:13] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:13] [Server thread/INFO]: [Not Secure] <pennti> f
+[21:40:13] [Server thread/INFO]: pennti lost connection: Kicked for spamming
+[21:40:13] [Server thread/INFO]: pennti left the game
+[21:40:46] [Server thread/INFO]: pennti[/127.0.0.1:55262] logged in with entity id 2760 at (378.5, 69.0, 465.5)
+[21:40:46] [Server thread/INFO]: pennti joined the game
+[21:40:50] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:40:50] [Server thread/INFO]: pennti left the game
+[21:40:51] [Server thread/INFO]: pennti[/127.0.0.1:55266] logged in with entity id 3017 at (378.5, 69.0, 465.5)
+[21:40:51] [Server thread/INFO]: pennti joined the game
+[21:40:52] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:40:52] [Server thread/INFO]: pennti left the game
+[21:40:57] [Server thread/INFO]: pennti[/127.0.0.1:49184] logged in with entity id 3281 at (378.5, 69.0, 465.5)
+[21:40:57] [Server thread/INFO]: pennti joined the game
+[21:40:57] [Server thread/INFO]: [Not Secure] <pennti> qw
+[21:40:58] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:40:58] [Server thread/INFO]: pennti left the game
+[21:41:06] [Server thread/INFO]: pennti[/127.0.0.1:51470] logged in with entity id 3550 at (378.5, 69.0, 465.5)
+[21:41:06] [Server thread/INFO]: pennti joined the game
+[21:41:07] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:07] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:08] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:09] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:09] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:10] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:11] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:11] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:12] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:12] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:13] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:13] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:13] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:14] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:14] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:14] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:15] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:15] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:16] [Server thread/INFO]: [Not Secure] <pennti> d
+[21:41:16] [Server thread/INFO]: pennti lost connection: Kicked for spamming
+[21:41:16] [Server thread/INFO]: pennti left the game
+[21:42:00] [Server thread/INFO]: pennti[/127.0.0.1:34260] logged in with entity id 3823 at (378.5, 69.0, 465.5)
+[21:42:00] [Server thread/INFO]: pennti joined the game
+[21:42:01] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:01] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:01] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:01] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:01] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:02] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:02] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:02] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:02] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:02] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:03] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:03] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:03] [Server thread/INFO]: [Not Secure] <pennti> w
+[21:42:03] [Server thread/INFO]: pennti lost connection: Kicked for spamming
+[21:42:03] [Server thread/INFO]: pennti left the game
+[21:42:10] [Server thread/INFO]: pennti[/127.0.0.1:52300] logged in with entity id 4093 at (378.5, 69.0, 465.5)
+[21:42:10] [Server thread/INFO]: pennti joined the game
+[21:42:11] [Server thread/INFO]: [Not Secure] <pennti> dfd
+[21:42:12] [Server thread/INFO]: [Not Secure] <pennti> fd
+[21:42:12] [Server thread/INFO]: [Not Secure] <pennti> fd
+[21:42:12] [Server thread/INFO]: [Not Secure] <pennti> fdf
+[21:42:13] [Server thread/INFO]: [Not Secure] <pennti> df
+[21:42:34] [Server thread/INFO]: pennti lost connection: Disconnected
+[21:42:34] [Server thread/INFO]: pennti left the game
+[21:44:48] [Server console handler/ERROR]: Exception handling console input
+java.io.IOException: Input/output error
+	at java.base/java.io.FileInputStream.readBytes(Native Method) ~[?:?]
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:287) ~[?:?]
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:345) ~[?:?]
+	at java.base/java.io.BufferedInputStream.implRead(BufferedInputStream.java:420) ~[?:?]
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:399) ~[?:?]
+	at java.base/sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:350) ~[?:?]
+	at java.base/sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:393) ~[?:?]
+	at java.base/sun.nio.cs.StreamDecoder.lockedRead(StreamDecoder.java:217) ~[?:?]
+	at java.base/sun.nio.cs.StreamDecoder.read(StreamDecoder.java:171) ~[?:?]
+	at java.base/java.io.InputStreamReader.read(InputStreamReader.java:188) ~[?:?]
+	at java.base/java.io.BufferedReader.fill(BufferedReader.java:160) ~[?:?]
+	at java.base/java.io.BufferedReader.implReadLine(BufferedReader.java:370) ~[?:?]
+	at java.base/java.io.BufferedReader.readLine(BufferedReader.java:347) ~[?:?]
+	at java.base/java.io.BufferedReader.readLine(BufferedReader.java:436) ~[?:?]
+	at apn$1.run(SourceFile:103) [server-1.21.jar:?]

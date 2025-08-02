@@ -8,7 +8,7 @@ const chalk = require('chalk').default;
 
 
 const operators = ['+', '-', '*', '/'];
-const solveMathQuestions = true;
+const solveMathQuestions = false;
 
 async function main() {
   console.clear();
@@ -102,8 +102,11 @@ async function SpawnBot(bot) {
       console.error('Error occurred:', err);
     });
 
-    bot.on('end', () => {
+    // show reason why bot disconnected
+
+    bot.on('end', (reason) => {
       console.log('Bot has disconnected from the server.');
+      console.log("Reson:", reason);
     });
   });
 
@@ -156,17 +159,29 @@ async function ListenForChat(bot) {
 
   });
 
-  // listen to standard input for user messages
-  process.stdin.on('data', (data) => {
-    const message = data.toString().trim();
-    if (message && message !== "exit") {
-      bot.chat(message);
-    }
-    if (message === "exit") {
+  try {
+
+  while (true) {
+    const userMessage = await input({
+      message: '',
+      validate: (value) => {
+        return value ? true : 'Message cannot be empty';
+      }
+    });
+
+    if (userMessage.toLowerCase() === 'exit') {
       bot.quit();
       process.exit(0);
     }
-  });
+
+
+    console.log(chalk.blue(`You: ${userMessage}`));
+    bot.chat(userMessage);
+  }
+
+  } catch (error) {
+    console.error(chalk.red('Exited Prompt. You can no longer chat'));
+  }
 
 }
 
