@@ -1,0 +1,20 @@
+{
+  "name": "minecraft-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "minecraft-data": "^3.94.0",
+    "minecraft-protocol": "^1.60.0",
+    "mineflayer": "^4.31.0",
+    "protodef": "^1.19.0"
+  }
+}
