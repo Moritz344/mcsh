@@ -1,0 +1,10 @@
+{
+
+  "chatInteraction": {
+    "solveMathProblems": true,
+    "solveMathTimeout": 1000,
+    "sendAnswerAutomatically": false,
+    "IgnoreOwnMessages": true
+  }
+
+}
