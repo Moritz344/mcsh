@@ -11,6 +11,7 @@ to minecraft chat messages and more!
 
 
 # Features/TODOS
+- [ ] be able to hop between servers 
 - [ ] Solve More Chatgames
 - [x] Listen to Minecraft server chats
 - [x] Be able to send messages to a server in the terminal
