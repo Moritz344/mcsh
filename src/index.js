@@ -6,8 +6,8 @@ const fs = require('fs');
 const path = require('path');
 
 // TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
-// TODO: save server cahts in file
-// TODO: user can also chat
+// TODO: timeout at start so bot can connect.
+// TODO: startscreen option without params
 
 
 const operators = ['+', '-', '*', '/'];
@@ -20,7 +20,7 @@ const solveMathQuestions = config.chatInteraction.solveMathProblems;
 const solveMathTimeout = config.chatInteraction.solveMathTimeout;
 const sendMathResult = config.chatInteraction.sendAnswerAutomatically;
 const ignoreMyMessages = config.chatInteraction.IgnoreOwnMessages;
-
+const configServerList = config.server.serverList;
 
 
 var screen = blessed.screen({
@@ -30,9 +30,9 @@ var screen = blessed.screen({
 
 var box = blessed.box({
   top: 'top',
-  left: 'center',
-  width: '100%',
-  height: '95%',
+  left: '0',
+  width: '75%',
+  height: '93%',
   content: 'Connecting to the server...',
   scrollable: true,
   alwaysScroll: true,
@@ -51,20 +51,8 @@ var box = blessed.box({
 });
 
 
-var icon = blessed.box({
-  top: '0',
-  left: '0',
-  width: '1',
-  height: '1',
-  content: '🤖',
-  style: {
-    fg: 'white',
-    bg: 'black'
-  }
-});
 
 box.focus();
-
 screen.render();
 
 var inputBox = blessed.textbox({
@@ -73,6 +61,9 @@ var inputBox = blessed.textbox({
   width: '100%',
   height: 'shrink',
   inputOnFocus: true,
+  border: {
+    type: "line",
+  },
   style: {
     fg: 'white',
     bg: 'black',
@@ -82,40 +73,126 @@ var inputBox = blessed.textbox({
   }
 });
 
-screen.append(inputBox);
-screen.append(icon);
-screen.append(box);
 
-inputBox.focus();
 
-async function main() {
+var ServerListBox = blessed.box({
+  right: '0',
+  width: '25%',
+  height: "93%",
+  mouse: true,
+  vi: true,
+  scrollable: true,
+  border: {
+    type: "line",
+  },
+  style: {
+    fg: 'white',
+    bg: 'black',
+    border: {
+      fg: 'white'
+    }
+  }
+
+})
+
+var server_list = configServerList;
+
+serverList = blessed.list({
+  parent: ServerListBox,
+  width: "100%",
+  height: "100%",
+  keys: true,
+  mouse: true,
+  vi: true,
+  style: {
+    selected: {bg: "green", fg: "black" },
+  },
+  items: server_list,
+});
+
+async function main(host_name = process.argv[2],username = process.argv[3],version_number = process.argv[5]) {
   console.clear();
 
-  const testServer = "eu.minemen.club";
-  const testUsername = "pennti";
-  const testVersion = "1.8.9";
-  const testAuth = "microsoft";
 
 
-    const bot = mineflayer.createBot({
-      host: process.argv[2],
-      username: process.argv[3],
-      auth: process.argv[4],
-      version: process.argv[5],
+    var bot = mineflayer.createBot({
+      host: host_name,
+      username: username,
+      auth: "microsoft",
     });
+
+
     console.log('Connecting to the server...');
     await SpawnBot(bot);
     await ListenForChat(bot);
     await ListenForErrors(bot);
 
+    return bot;
+
 }
 
-main();
+(async () => {
+  bot = await main();
+})();
+
+
+async function ConnectToServer(host,name) {
+  if (bot) {
+    try {
+      bot.quit("quit bot");
+      bot.removeAllListeners('all');
+
+    }catch(err) {
+      console.log("Error when changing to new bot",err);
+    }
+
+  }
+
+    bot = mineflayer.createBot({
+      host: host,
+      username: name,
+      auth: "microsoft",
+    });
+
+  await ListenForChat(bot);
+  await ListenForErrors(bot);
+
+
+  bot.on("login",() => {
+    SendNotification("bot decided to live");
+  })
+
+  bot.on("end", () => {
+    SendNotification("bot decided not to live anymore");
+  })
+
+}
+
+
+serverList.on('select', async(item,index) => {
+  if (item.getText() !== "Exit") {
+    await SendNotification("Selected a new server => " + item.getText())
+    const server_host = item.getText();
+    await ConnectToServer(server_host,bot.username);
+    screen.render();
+  }else{
+    process.exit(0);
+  }
+});
+
+screen.append(ServerListBox);
+screen.append(inputBox);
+screen.append(box);
+
+inputBox.focus();
+
+screen.render();
 
 
 function SendNotification(message) {
-  box.pushLine(`${chalk.green('Notification')}: ${message}`);
-  screen.render();
+    box.pushLine(`${chalk.green('Notification')}: ${message}`);
+    screen.render();
+
 }
 
 
@@ -133,11 +210,11 @@ async function SpawnBot(bot) {
 
 
     bot.on('end', (reason) => {
-      console.log(chalk.red.bold('Bot has disconnected from the server.'));
-      console.log("Reason:", reason);
-      setTimeout(() => {
-        process.exit(0);
-      }, 5000);
+      //console.log(chalk.red.bold('Bot has disconnected from the server.'));
+      //console.log("Reason:", reason);
+      //setTimeout(() => {
+      //  process.exit(0);
+      //}, 10000);
 
 
     });
@@ -192,19 +269,13 @@ function ListenForMathQuestions(bot,message) {
 
 async function ListenForChat(bot) {
 
+  bot.removeAllListeners("chat");
   bot.on('chat', (username, message) => {
-    //if (message === 'gg') {
-    //  SendChatMessage(bot, 'gg');
-    //}else if (message === "o/" ) {
-    //  SendChatMessage(bot, 'o/');
-    //}else if (message === "gn") {
-    //  SendChatMessage(bot, 'gn');
-    //}
 
     if (ignoreMyMessages ) {
       if (username === bot.username) {
         ListenForMathQuestions(bot,message);
-        return; // Ignore own messages
+        return;
       };
     }
       box.pushLine(`${chalk.blue(username)}: ${message}`);
@@ -213,16 +284,19 @@ async function ListenForChat(bot) {
 
 
 
+
       ListenForMathQuestions(bot,message);
 
   });
 
+  inputBox.removeAllListeners("submit");
   inputBox.on('submit', (value) => {
     let message = value.trim();
     SendChatMessage(bot,message);
     if (value.trim() === "exit") {
           process.exit(0);
     }
+
 
     });
 
