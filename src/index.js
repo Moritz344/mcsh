@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
-// TODO: timeout at start so bot can connect.
+// TODO: timeout at start so bot can connect/cooldown for switching servers 
 // TODO: startscreen option without params
 
 
@@ -22,6 +22,16 @@ const sendMathResult = config.chatInteraction.sendAnswerAutomatically;
 const ignoreMyMessages = config.chatInteraction.IgnoreOwnMessages;
 const configServerList = config.server.serverList;
 
+function SendNotification(message) {
+    if (message.length >= 300) {
+      const safeText = message.slice(0,300);
+      message = safeText;
+    }else{
+      box.pushLine(`${chalk.green('Notification')}: ${message}`);
+    }
+    screen.render();
+
+}
 
 var screen = blessed.screen({
   smartCSR: true,
@@ -33,7 +43,7 @@ var box = blessed.box({
   left: '0',
   width: '75%',
   height: '93%',
-  content: 'Connecting to the server...',
+  content: chalk.red.bold('Please wait ...'),
   scrollable: true,
   alwaysScroll: true,
   vi: true,
@@ -96,6 +106,8 @@ var ServerListBox = blessed.box({
 })
 
 var server_list = configServerList;
+server_list.push(chalk.red.bold("Exit"));
+
 
 serverList = blessed.list({
   parent: ServerListBox,
@@ -114,18 +126,22 @@ async function main(host_name = process.argv[2],username = process.argv[3],versi
   console.clear();
 
 
-
     var bot = mineflayer.createBot({
       host: host_name,
       username: username,
       auth: "microsoft",
     });
 
+    serverList.clearItems();
+    server_list[0] = `Version: ${chalk.green.bold(process.argv[5])}`
+    server_list[1] = `Server: ${chalk.yellow.bold(process.argv[2])}`;
+    serverList.setItems(server_list);
+    screen.render();
 
-    console.log('Connecting to the server...');
     await SpawnBot(bot);
     await ListenForChat(bot);
     await ListenForErrors(bot);
+
 
     return bot;
 
@@ -139,14 +155,15 @@ async function main(host_name = process.argv[2],username = process.argv[3],versi
 async function ConnectToServer(host,name) {
   if (bot) {
     try {
-      bot.quit("quit bot");
+      bot.quit("Connecting");
       bot.removeAllListeners('all');
 
     }catch(err) {
-      console.log("Error when changing to new bot",err);
+      SendNotification("Error when changing to new bot");
     }
 
   }
+
 
     bot = mineflayer.createBot({
       host: host,
@@ -154,9 +171,20 @@ async function ConnectToServer(host,name) {
       auth: "microsoft",
     });
 
+
   await ListenForChat(bot);
   await ListenForErrors(bot);
 
+  bot.once('login', () => {
+    SendNotification(`Bot-Version: ${bot.version}`);
+    serverList.clearItems();
+    server_list[0] = `Version: ${chalk.green.bold(bot.version)}`
+    server_list[1] = `Server: ${chalk.green.bold(host)}`
+    serverList.setItems(server_list);
+    screen.render();
+
+    
+  });
 
   bot.on("login",() => {
     SendNotification("bot decided to live");
@@ -171,17 +199,27 @@ async function ConnectToServer(host,name) {
 
 serverList.on('select', async(item,index) => {
   if (item.getText() !== "Exit") {
-    await SendNotification("Selected a new server => " + item.getText())
-    const server_host = item.getText();
-    await ConnectToServer(server_host,bot.username);
-    screen.render();
+    try {
+      await SendNotification("Selected a new server => " + item.getText())
+      const server_host = item.getText();
+      await ConnectToServer(server_host,bot.username);
+      screen.render();
+
+    }catch(fish) {
+      if (fish.name === "ReferencedError") {
+        SendNotification(`I said wait`);
+      }
+      SendNotification(`Error catching fish ${fish} `);
+    }
   }else{
+    console.clear();
     process.exit(0);
   }
 });
 
 screen.append(ServerListBox);
 screen.append(inputBox);
+
 screen.append(box);
 
 inputBox.focus();
@@ -189,11 +227,6 @@ inputBox.focus();
 screen.render();
 
 
-function SendNotification(message) {
-    box.pushLine(`${chalk.green('Notification')}: ${message}`);
-    screen.render();
-
-}
 
 
 async function SpawnBot(bot) {
@@ -205,16 +238,18 @@ async function SpawnBot(bot) {
 
 
     bot.on('error', (err) => {
-      console.error('Error occurred:', err);
+      if (err.name === "PartialReadError") {
+        SendNotification("PartialReadError");
+        return;
+      }else{
+        SendNotification(err);
+      }
+
     });
 
 
     bot.on('end', (reason) => {
-      //console.log(chalk.red.bold('Bot has disconnected from the server.'));
-      //console.log("Reason:", reason);
-      //setTimeout(() => {
-      //  process.exit(0);
-      //}, 10000);
+      SendNotification(reason);
 
 
     });
@@ -308,6 +343,34 @@ async function ListenForErrors(bot) {
   bot.on('kicked', (reason) => {
     SendNotification(`Kicked from the server: ${reason}`);
   });
+
+  bot.on('error', (err) => {
+    if (err.name === "PartialReadError") {
+      return;
+    }else{
+      SendNotification(err);
+    }
+  });
+
+
+  process.on('uncaughtException', (err) => {
+    SendNotification(`Uncaught: ${err.message}`);
+  });
+  
+  process.on('unhandledRejection', (reason) => {
+    SendNotification(`Unhandled: ${reason}`);
+  });
+
+  bot._client.on('error', (err) => {
+    SendNotification(`Protocol Error: ${err.name} - ${err.message}`);
+  });
+
+  //process.stdin.on('data',(data) => {
+  //  var text = data;
+  //  if (text.length >= 300) {
+  //    process.exit(0);
+  //  }
+  //});
 
 }
 
