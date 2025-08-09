@@ -2,10 +2,12 @@
 a simple minecraft bot that listens
 to minecraft chat messages and more!
 
-<img width="1363" height="891" alt="bot" src="https://github.com/user-attachments/assets/b96c4b40-c2c3-4e51-9e42-1cec2b7cafb1" />
+<img width="1905" height="1033" alt="minecraft-bot" src="https://github.com/user-attachments/assets/1eb8cb00-a973-481b-ae64-68dcfb421187" />
+
 
 <details>
-  <img width="1889" height="998" alt="bot-chat_2" src="https://github.com/user-attachments/assets/11357851-4cb9-4054-b7d1-b00ed76f636f" />
+  
+<img width="1911" height="1031" alt="bot_2" src="https://github.com/user-attachments/assets/268625ec-fa12-4adf-8ec0-8c0f992e07b3" />
 
 </details>
 
