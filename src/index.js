@@ -4,16 +4,50 @@ const chalk = require('chalk').default;
 var blessed = require('blessed');
 const fs = require('fs');
 const path = require('path');
+const { Command } = require('commander');
+
+const program = new Command();
+const pkg = JSON.parse(
+  fs.readFileSync(path.join(__dirname,'package.json'),'utf-8')
+);
+
+var minecraft_version = undefined;
+var minecraft_host = undefined;
+var minecraft_username = undefined;
+
+function HandleCommander() {
+  program
+    .name('mcsh')
+    .description('Connect to minecraft servers via the terminal')
+    .version(pkg.version);
+  
+  
+  program
+    .command('login')
+    .argument('<username>',"minecraft username")
+    .argument('[host]',"minecraft server name")
+    .argument('[version]',"minecraft version")
+    .action((username,host,version) => {
+        minecraft_username = username;
+        minecraft_host = host;
+        minecraft_version = version;
+
+    });
+
+
+  program.parse(process.argv);
+}
+
+HandleCommander();
+
 
 // TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
 // TODO: timeout at start so bot can connect/cooldown for switching servers 
-// TODO: startscreen option without params
-
+// TODO: let user add servers/ 1. with command in main inputBox/ 2. new inputBox
 
 
 
 const operators = ['+', '-', '*', '/'];
-// get json data
 const configPath = path.resolve(__dirname, 'config.json');
 const configData = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configData);
@@ -43,15 +77,22 @@ var screen = blessed.screen({
   title: 'Mineflayer Bot'
 });
 
-var box = blessed.box({
+var box = blessed.log({
   top: 'top',
+  label: "Chat",
   left: '0',
   width: '75%',
   height: '93%',
   content: chalk.red.bold('Please wait ...'),
+  mouse: true,
   scrollable: true,
   alwaysScroll: true,
+  scrollback: 1000,
   vi: true,
+  scrollbar: {
+    ch: '|',
+    inverse: true
+  },
   border: {
     type: 'line',
     fg: 'cyan'
@@ -98,6 +139,7 @@ var ServerListBox = blessed.box({
   width: '25%',
   height: "93%",
   mouse: true,
+  label: "Serverlist",
   vi: true,
   scrollable: true,
   border: {
@@ -135,13 +177,13 @@ serverList = blessed.list({
   items: server_items,
 });
 
-async function main(username = process.argv[2],host_name = process.argv[3],version_number = process.argv[5]) {
+async function main(username = minecraft_username,host_name = minecraft_host,version_number = minecraft_version) {
     console.clear();
    
 
     if (!host_name || !version_number ) {
-      host_name = "eu.minemen.club";
-      version_number = "1.21";
+      host_name = configServerList[Math.floor(Math.random() * configServerList.length)];
+      version_number = "auto";
     }
 
 
@@ -200,6 +242,7 @@ async function ConnectToServer(host,name) {
     });
 
 
+
   await ListenForChat(bot);
   await ListenForErrors(bot);
 
@@ -224,6 +267,10 @@ async function ConnectToServer(host,name) {
 
 }
 
+box.on("select", () => {
+  box.focus();
+});
+
 
 serverList.on('select', async(item,index) => {
   if (item.getText() !== "Exit" && server_items.includes(item.getText())) {
@@ -243,6 +290,7 @@ serverList.on('select', async(item,index) => {
     console.clear();
     process.exit(0);
   }
+  
 });
 
 
@@ -346,7 +394,7 @@ async function ListenForChat(bot) {
       };
     }
       box.pushLine(`${chalk.blue(username)}: ${message}`);
-      box.scroll(1.0);
+      box.scroll(1);
       screen.render();
 
 
@@ -359,9 +407,36 @@ async function ListenForChat(bot) {
   inputBox.removeAllListeners("submit");
   inputBox.on('submit', (value) => {
     let message = value.trim();
-    SendChatMessage(bot,message);
     if (value.trim() === "exit") {
           process.exit(0);
+    }else if(value.trim().startsWith("/addServer")) {
+      const parts = value.trim().split(' ');
+      if (parts.length >= 2) {
+        let server = parts[1];
+        if (!server_items.includes(server)) {
+          SendNotification(`Added Server: ${server}`);
+          server_items.splice(server_items.length - 1,0,server);
+          serverList.setItems(server_items);
+          screen.render();
+
+        }else {
+          SendNotification("This server is already in the list!");
+        }
+      }
+        inputBox.focus();
+    }else if (value.trim().startsWith("/removeServer")){
+      const parts = value.trim().split(' ');
+      let serverToRemove = parts[1];
+      if (parts.length >= 2) {
+        SendNotification(`Removed Server: ${serverToRemove}`);
+        const index = server_items.indexOf(serverToRemove);
+        server_items.splice(index,1);
+        serverList.setItems(server_items);
+        screen.render();
+      }
+        inputBox.focus();
+    }else{
+      SendChatMessage(bot,message);
     }
 
 
@@ -381,7 +456,7 @@ async function ListenForErrors(bot) {
   }
 
   bot.on('kicked', (reason) => {
-    SendNotification(`Kicked from the server: ${reason}`);
+    SendNotification(`Kicked from the server: ${reason.toString()}`);
   });
 
   bot.on('error', (err) => {
