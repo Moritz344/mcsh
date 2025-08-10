@@ -1,21 +1,20 @@
 {
-
+  "user": {
+    "name": "pennti"
+  },
   "chatInteraction": {
     "solveMathProblems": true,
     "solveMathTimeout": 1000,
     "sendAnswerAutomatically": false,
     "IgnoreOwnMessages": true
   },
-
   "server": {
     "serverList": [
-          "play.hypixel.net",
-          "fmc.wynncraft.com",
-          "play.thirdplacemc.net",
-          "mcpvp.club",
-          "eu.minemen.club",
-          "pvpgym.net"
+      "play.thirdplacemc.net",
+      "lifesteal.net",
+      "mcpvp.club",
+      "eu.minemen.club",
+      "pvpgym.net"
     ]
   }
-
 }

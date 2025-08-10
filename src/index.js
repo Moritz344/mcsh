@@ -10,6 +10,8 @@ const path = require('path');
 // TODO: startscreen option without params
 
 
+
+
 const operators = ['+', '-', '*', '/'];
 // get json data
 const configPath = path.resolve(__dirname, 'config.json');
@@ -21,6 +23,9 @@ const solveMathTimeout = config.chatInteraction.solveMathTimeout;
 const sendMathResult = config.chatInteraction.sendAnswerAutomatically;
 const ignoreMyMessages = config.chatInteraction.IgnoreOwnMessages;
 const configServerList = config.server.serverList;
+let configUsername = config.user.name;
+
+var server_items = [];
 
 function SendNotification(message) {
     if (message.length >= 300) {
@@ -62,8 +67,11 @@ var box = blessed.box({
 
 
 
-box.focus();
-screen.render();
+if (process.argv[2]) {
+  box.focus();
+  screen.render();
+
+}
 
 var inputBox = blessed.textbox({
   bottom: '0',
@@ -106,7 +114,12 @@ var ServerListBox = blessed.box({
 })
 
 var server_list = configServerList;
-server_list.push(chalk.red.bold("Exit"));
+for (let i=0;i<server_list.length;i++) {
+  server_items.push(server_list[i]);
+}
+if (!server_list.includes(chalk.red.bold("Exit")) ) {
+  server_items.push(chalk.red.bold("Exit"));
+}
 
 
 serverList = blessed.list({
@@ -119,11 +132,20 @@ serverList = blessed.list({
   style: {
     selected: {bg: "green", fg: "black" },
   },
-  items: server_list,
+  items: server_items,
 });
 
-async function main(host_name = process.argv[2],username = process.argv[3],version_number = process.argv[5]) {
-  console.clear();
+async function main(username = process.argv[2],host_name = process.argv[3],version_number = process.argv[5]) {
+    console.clear();
+   
+
+    if (!host_name || !version_number ) {
+      host_name = "eu.minemen.club";
+      version_number = "1.21";
+    }
+
+
+    
 
 
     var bot = mineflayer.createBot({
@@ -132,10 +154,11 @@ async function main(host_name = process.argv[2],username = process.argv[3],versi
       auth: "microsoft",
     });
 
+
     serverList.clearItems();
-    server_list[0] = `Version: ${chalk.green.bold(process.argv[5])}`
-    server_list[1] = `Server: ${chalk.yellow.bold(process.argv[2])}`;
-    serverList.setItems(server_list);
+    server_items.unshift(`Version: ${chalk.green.bold(version_number)}`);
+    server_items.unshift(`Server: ${chalk.yellow.bold(host_name)}`);
+    serverList.setItems(server_items);
     screen.render();
 
     await SpawnBot(bot);
@@ -147,9 +170,14 @@ async function main(host_name = process.argv[2],username = process.argv[3],versi
 
 }
 
-(async () => {
-  bot = await main();
-})();
+
+  (async () => {
+    bot = await main();
+    config.user.name = bot.username;
+    fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+  })();
+
+
 
 
 async function ConnectToServer(host,name) {
@@ -178,9 +206,9 @@ async function ConnectToServer(host,name) {
   bot.once('login', () => {
     SendNotification(`Bot-Version: ${bot.version}`);
     serverList.clearItems();
-    server_list[0] = `Version: ${chalk.green.bold(bot.version)}`
-    server_list[1] = `Server: ${chalk.green.bold(host)}`
-    serverList.setItems(server_list);
+    server_items[0] = `Server: ${chalk.yellow.bold(host)}`;
+    server_items[1] = `Version: ${chalk.green.bold(bot.version)}`;
+    serverList.setItems(server_items);
     screen.render();
 
     
@@ -198,7 +226,7 @@ async function ConnectToServer(host,name) {
 
 
 serverList.on('select', async(item,index) => {
-  if (item.getText() !== "Exit") {
+  if (item.getText() !== "Exit" && server_items.includes(item.getText())) {
     try {
       await SendNotification("Selected a new server => " + item.getText())
       const server_host = item.getText();
@@ -211,20 +239,23 @@ serverList.on('select', async(item,index) => {
       }
       SendNotification(`Error catching fish ${fish} `);
     }
-  }else{
+  }else if(item.getText() === "Exit"){
     console.clear();
     process.exit(0);
   }
 });
 
-screen.append(ServerListBox);
-screen.append(inputBox);
 
-screen.append(box);
 
-inputBox.focus();
+  screen.append(ServerListBox);
+  screen.append(inputBox);
+  
+  screen.append(box);
+  
+  inputBox.focus();
+  
+  screen.render();
 
-screen.render();
 
 
 
@@ -304,6 +335,7 @@ function ListenForMathQuestions(bot,message) {
 
 async function ListenForChat(bot) {
 
+
   bot.removeAllListeners("chat");
   bot.on('chat', (username, message) => {
 
@@ -340,6 +372,11 @@ async function ListenForChat(bot) {
 
 
 async function ListenForErrors(bot) {
+  
+  if (!process.argv[1] || !process.argv[2] ) {
+    SendNotification("Please atleast enter a username. Ingore this if you are already logged in. ");
+  }
+
   bot.on('kicked', (reason) => {
     SendNotification(`Kicked from the server: ${reason}`);
   });
@@ -364,13 +401,6 @@ async function ListenForErrors(bot) {
   bot._client.on('error', (err) => {
     SendNotification(`Protocol Error: ${err.name} - ${err.message}`);
   });
-
-  //process.stdin.on('data',(data) => {
-  //  var text = data;
-  //  if (text.length >= 300) {
-  //    process.exit(0);
-  //  }
-  //});
 
 }
 
