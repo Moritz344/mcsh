@@ -373,8 +373,11 @@ async function ListenForChat(bot) {
 
 async function ListenForErrors(bot) {
   
-  if (!process.argv[1] || !process.argv[2] ) {
-    SendNotification("Please atleast enter a username. Ingore this if you are already logged in. ");
+  if (config.user.name === "") {
+    if (!process.argv[1] || !process.argv[2] ) {
+      SendNotification("Please atleast enter a username. Ignore this if you are already logged in. ");
+    }
+
   }
 
   bot.on('kicked', (reason) => {
