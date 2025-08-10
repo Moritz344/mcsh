@@ -1,4 +1,4 @@
-# minecraft-bot
+# mcsh
 a simple cli tool that lets you connect to your favourite minecraft server via the terminal.
 
 <img width="1905" height="1033" alt="minecraft-bot" src="https://github.com/user-attachments/assets/1eb8cb00-a973-481b-ae64-68dcfb421187" />
