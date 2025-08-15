@@ -13,10 +13,10 @@ a simple cli tool that lets you connect to your favourite minecraft server via t
 
 # Features/TODOS
 - [x] be able to hop between servers 
-- [ ] Solve More Chatgames
 - [x] Listen to Minecraft server chats
 - [x] Be able to send messages to a server in the terminal
-
+- [x] Be able to add and remove Server
+- [ ] Solve More Chatgames
 
 # Author
 - Moritz344

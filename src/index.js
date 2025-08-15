@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { search, Separator, select, confirm, input, password, checkbox } = require('@inquirer/prompts');
 const mineflayer = require('mineflayer');
 const chalk = require('chalk').default;
@@ -14,6 +16,24 @@ const pkg = JSON.parse(
 var minecraft_version = undefined;
 var minecraft_host = undefined;
 var minecraft_username = undefined;
+
+// TODO: publish on npm :-)
+// TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
+// TODO: Error function like SendNotification  
+
+const operators = ['+', '-', '*', '/'];
+const configPath = path.resolve(__dirname, 'config.json');
+const configData = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(configData);
+
+const solveMathQuestions = config.chatInteraction.solveMathProblems;
+const solveMathTimeout = config.chatInteraction.solveMathTimeout;
+const sendMathResult = config.chatInteraction.sendAnswerAutomatically;
+const ignoreMyMessages = config.chatInteraction.IgnoreOwnMessages;
+const configServerList = config.server.serverList;
+let configUsername = config.user.name;
+
+var server_items = [];
 
 function HandleCommander() {
   program
@@ -34,32 +54,64 @@ function HandleCommander() {
 
     });
 
+  program
+    .command('addServer')
+    .argument('<serverName>',"server name to add to the server list")
+    .action((serverName) => {
+       addServerToJson(serverName);
+       process.exit(0);
+    });
+  program
+    .command('removeServer')
+    .argument('<serverName>',"server name to remove from server list ")
+    .action((serverName) => {
+       removeServerFromJson(serverName);
+       process.exit(0);
+    });
+  program
+    .command('showServerList')
+    .action((serverName) => {
+       console.log(config.server.serverList);
+       process.exit(0);
+    });
+
 
   program.parse(process.argv);
 }
 
 HandleCommander();
 
+// write errors in box instead to standard input
+console.log = (... args) => {
+  SendNotification(args.join(' '));
+  screen.render();
+}
 
-// TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
-// TODO: timeout at start so bot can connect/cooldown for switching servers 
-// TODO: let user add servers/ 1. with command in main inputBox/ 2. new inputBox
 
+function addServerToJson(name) {
+       if (!config.server.serverList.includes(name)) {
+          config.server.serverList.push(name);
+          fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+          console.log(chalk.green.bold("Added Server:",name));
 
+          console.log(config.server.serverList);
+       }else{
+          console.log(chalk.yellow.red("Server already added:",name));
+       }
+}
 
-const operators = ['+', '-', '*', '/'];
-const configPath = path.resolve(__dirname, 'config.json');
-const configData = fs.readFileSync(configPath, 'utf8');
-const config = JSON.parse(configData);
+function removeServerFromJson(name) {
+        if (config.server.serverList.includes(name)) {
+          const indexJson = config.server.serverList.indexOf(name);
+          config.server.serverList.splice(indexJson ,1);
 
-const solveMathQuestions = config.chatInteraction.solveMathProblems;
-const solveMathTimeout = config.chatInteraction.solveMathTimeout;
-const sendMathResult = config.chatInteraction.sendAnswerAutomatically;
-const ignoreMyMessages = config.chatInteraction.IgnoreOwnMessages;
-const configServerList = config.server.serverList;
-let configUsername = config.user.name;
-
-var server_items = [];
+          fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+          console.log(chalk.red("Removed Server:",name,));
+          console.log(config.server.serverList);
+      }else {
+          console.log(chalk.red.bold("Nothing to remove!"));
+      }
+}
 
 function SendNotification(message) {
     if (message.length >= 300) {
@@ -74,7 +126,7 @@ function SendNotification(message) {
 
 var screen = blessed.screen({
   smartCSR: true,
-  title: 'Mineflayer Bot'
+  title: 'mcsh'
 });
 
 var box = blessed.log({
@@ -410,15 +462,21 @@ async function ListenForChat(bot) {
     if (value.trim() === "exit") {
           process.exit(0);
     }else if(value.trim().startsWith("/addServer")) {
+      // TODO: max length
+      // TODO: check for domain or invalid things like ','
+
       const parts = value.trim().split(' ');
       if (parts.length >= 2) {
         let server = parts[1];
         if (!server_items.includes(server)) {
           SendNotification(`Added Server: ${server}`);
+
+          config.server.serverList.splice(server_items.length - 1,0,server);
           server_items.splice(server_items.length - 1,0,server);
           serverList.setItems(server_items);
-          screen.render();
 
+          screen.render();
+          fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
         }else {
           SendNotification("This server is already in the list!");
         }
@@ -427,12 +485,24 @@ async function ListenForChat(bot) {
     }else if (value.trim().startsWith("/removeServer")){
       const parts = value.trim().split(' ');
       let serverToRemove = parts[1];
-      if (parts.length >= 2) {
-        SendNotification(`Removed Server: ${serverToRemove}`);
-        const index = server_items.indexOf(serverToRemove);
-        server_items.splice(index,1);
+      if (parts.length >= 2 && server_items.includes(serverToRemove)) {
+        const indexLocal = server_items.indexOf(serverToRemove);
+        const indexJson = server_items.indexOf(serverToRemove);
+
+        config.server.serverList.splice(indexJson - 2,1);
+        server_items.splice(indexLocal ,1);
         serverList.setItems(server_items);
+
+        SendNotification(`Removed Server '${serverToRemove}' `);
+
+
         screen.render();
+        fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+      }else {
+        if (serverToRemove === undefined) {
+          serverToRemove = "";
+        }
+        SendNotification(`Server: '${serverToRemove}' not found! `);
       }
         inputBox.focus();
     }else{
@@ -447,6 +517,7 @@ async function ListenForChat(bot) {
 
 
 async function ListenForErrors(bot) {
+
   
   if (config.user.name === "") {
     if (!process.argv[1] || !process.argv[2] ) {
@@ -477,7 +548,13 @@ async function ListenForErrors(bot) {
   });
 
   bot._client.on('error', (err) => {
-    SendNotification(`Protocol Error: ${err.name} - ${err.message}`);
+    if (err.code === "ENOTFOUND") {
+      SendNotification("Server not found!");
+      screen.render();
+    }
+    return;
+
+
   });
 
 }
