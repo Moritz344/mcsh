@@ -8,6 +8,8 @@ const fs = require('fs');
 const path = require('path');
 const { Command } = require('commander');
 
+const { GameDig } = require('gamedig');
+
 const program = new Command();
 const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname,'package.json'),'utf-8')
@@ -17,9 +19,9 @@ var minecraft_version = undefined;
 var minecraft_host = undefined;
 var minecraft_username = undefined;
 
-// TODO: publish on npm :-)
 // TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
 // TODO: Error function like SendNotification  
+// TODO: /join command | /clear command
 
 const operators = ['+', '-', '*', '/'];
 const configPath = path.resolve(__dirname, 'config.json');
@@ -34,6 +36,7 @@ const configServerList = config.server.serverList;
 let configUsername = config.user.name;
 
 var server_items = [];
+var serverExists = undefined;
 
 function HandleCommander() {
   program
@@ -58,8 +61,8 @@ function HandleCommander() {
     .command('addServer')
     .argument('<serverName>',"server name to add to the server list")
     .action((serverName) => {
-       addServerToJson(serverName);
-       process.exit(0);
+      addServerToJson(serverName);
+      process.exit(0);
     });
   program
     .command('removeServer')
@@ -81,23 +84,64 @@ function HandleCommander() {
 
 HandleCommander();
 
-// write errors in box instead to standard input
-console.log = (... args) => {
-  SendNotification(args.join(' '));
-  screen.render();
+function WriteErrorsToNotificationBox() {
+  // write errors in box instead to standard input
+  console.log = (... args) => {
+    screen.render();
+  }
+
+}
+WriteErrorsToNotificationBox()
+
+async function checkIfMcServerExists(serverName) {
+  try {
+    const state = await GameDig.query({
+      type: 'minecraft',
+      host: serverName
+    });
+    return true;
+  }catch(error) {
+    console.log("Server",serverName,"does not exist or is offline");
+    if (server_items.includes(serverName)) {
+      SendNotification("Exiting program. Invalid Servers in config. Should be fixed after restart.");
+
+      setTimeout( () => {
+        console.clear();
+        process.exit(0);
+      },10000);
+      removeServerFromJson(serverName);
+
+    }
+    return false;
+  }
+
+}
+
+function ScanServerList() {
+  const listToCheck = config.server.serverList;
+
+  for (let i=0;i<listToCheck.length;i++) {
+    let ex = checkIfMcServerExists(listToCheck[i]);
+  }
+
+
 }
 
 
-function addServerToJson(name) {
-       if (!config.server.serverList.includes(name)) {
-          config.server.serverList.push(name);
-          fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
-          console.log(chalk.green.bold("Added Server:",name));
 
-          console.log(config.server.serverList);
-       }else{
-          console.log(chalk.yellow.red("Server already added:",name));
-       }
+async function addServerToJson(name) {
+
+          if (!config.server.serverList.includes(name)) {
+             config.server.serverList.push(name);
+             fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+             console.log(chalk.green.bold("Added Server:",name));
+
+             console.log(config.server.serverList);
+          }
+
+
+
+
 }
 
 function removeServerFromJson(name) {
@@ -107,11 +151,11 @@ function removeServerFromJson(name) {
 
           fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
           console.log(chalk.red("Removed Server:",name,));
-          console.log(config.server.serverList);
       }else {
           console.log(chalk.red.bold("Nothing to remove!"));
       }
 }
+
 
 function SendNotification(message) {
     if (message.length >= 300) {
@@ -228,9 +272,11 @@ serverList = blessed.list({
   },
   items: server_items,
 });
-
+ScanServerList();
 async function main(username = minecraft_username,host_name = minecraft_host,version_number = minecraft_version) {
     console.clear();
+
+
    
 
     if (!host_name || !version_number ) {
@@ -368,6 +414,7 @@ async function SpawnBot(bot) {
     });
 
 
+
     bot.on('error', (err) => {
       if (err.name === "PartialReadError") {
         SendNotification("PartialReadError");
@@ -462,26 +509,26 @@ async function ListenForChat(bot) {
     if (value.trim() === "exit") {
           process.exit(0);
     }else if(value.trim().startsWith("/addServer")) {
-      // TODO: max length
-      // TODO: check for domain or invalid things like ','
-
       const parts = value.trim().split(' ');
       if (parts.length >= 2) {
         let server = parts[1];
-        if (!server_items.includes(server)) {
-          SendNotification(`Added Server: ${server}`);
+        checkIfMcServerExists(server).then(( exists) => {
+          if (exists && !server_items.includes(server)) {
+            SendNotification(`Added Server: ${server}`);
 
-          config.server.serverList.splice(server_items.length - 1,0,server);
-          server_items.splice(server_items.length - 1,0,server);
-          serverList.setItems(server_items);
+            config.server.serverList.splice(server_items.length - 1,0,server);
+            server_items.splice(server_items.length - 1,0,server);
+            serverList.setItems(server_items);
 
-          screen.render();
-          fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
-        }else {
-          SendNotification("This server is already in the list!");
-        }
+            screen.render();
+            fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+          }else if (server_items.includes(server)){
+            SendNotification("This server is already in the list.");
+          }
+          inputBox.focus();
+        });
       }
-        inputBox.focus();
+      inputBox.focus();
     }else if (value.trim().startsWith("/removeServer")){
       const parts = value.trim().split(' ');
       let serverToRemove = parts[1];
