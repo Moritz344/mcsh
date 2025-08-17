@@ -1,20 +1,19 @@
 {
   "user": {
-    "name": ""
+    "name": "pennti"
   },
   "chatInteraction": {
     "solveMathProblems": true,
     "solveMathTimeout": 1000,
     "sendAnswerAutomatically": false,
-    "IgnoreOwnMessages": true
+    "IgnoreOwnMessages": true,
+    "UnscrambleWords": false
   },
   "server": {
     "serverList": [
-      "play.thirdplacemc.net",
       "lifesteal.net",
-      "mcpvp.club",
-      "eu.minemen.club",
-      "pvpgym.net"
+      "mc.hypixel.net",
+      "eu.minemen.club"
     ]
   }
 }

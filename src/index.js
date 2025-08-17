@@ -7,21 +7,22 @@ var blessed = require('blessed');
 const fs = require('fs');
 const path = require('path');
 const { Command } = require('commander');
-
 const { GameDig } = require('gamedig');
+const { unscrambleWord } = require('./unscrambleWord.js');
 
 const program = new Command();
 const pkg = JSON.parse(
   fs.readFileSync(path.join(__dirname,'package.json'),'utf-8')
 );
 
+const wordList = require("wordlist-english");
+const dict = wordList["english"];
+
 var minecraft_version = undefined;
 var minecraft_host = undefined;
 var minecraft_username = undefined;
 
-// TODO: react to mc chatgames / solve math games // Linux dic: fs.readFileSync('/usr/share/dict/words')
-// TODO: Error function like SendNotification  
-// TODO: /join command | /clear command
+// TODO: react to mc chatgames // Linux dic: fs.readFileSync('/usr/share/dict/words')
 
 const operators = ['+', '-', '*', '/'];
 const configPath = path.resolve(__dirname, 'config.json');
@@ -33,10 +34,8 @@ const solveMathTimeout = config.chatInteraction.solveMathTimeout;
 const sendMathResult = config.chatInteraction.sendAnswerAutomatically;
 const ignoreMyMessages = config.chatInteraction.IgnoreOwnMessages;
 const configServerList = config.server.serverList;
-let configUsername = config.user.name;
 
 var server_items = [];
-var serverExists = undefined;
 
 function HandleCommander() {
   program
@@ -103,7 +102,7 @@ async function checkIfMcServerExists(serverName) {
   }catch(error) {
     console.log("Server",serverName,"does not exist or is offline");
     if (server_items.includes(serverName)) {
-      SendNotification("Exiting program. Invalid Servers in config. Should be fixed after restart.");
+      SendErrorNotification("Exiting program. Invalid Server in config. Should be fixed after restart.");
 
       setTimeout( () => {
         console.clear();
@@ -156,6 +155,11 @@ function removeServerFromJson(name) {
       }
 }
 
+function SendErrorNotification(message,) {
+
+      box.pushLine(`${chalk.red('Error:')}: ${message}`);
+		
+}
 
 function SendNotification(message) {
     if (message.length >= 300) {
@@ -327,7 +331,7 @@ async function ConnectToServer(host,name) {
       bot.removeAllListeners('all');
 
     }catch(err) {
-      SendNotification("Error when changing to new bot");
+      SendErrorNotification("Error when connecting to server.");
     }
 
   }
@@ -356,11 +360,12 @@ async function ConnectToServer(host,name) {
   });
 
   bot.on("login",() => {
-    SendNotification("bot decided to live");
+    SendNotification("You are connected to the server.");
   })
 
   bot.on("end", () => {
-    SendNotification("bot decided not to live anymore");
+    SendNotification("You are disconnected from the server.")
+
   })
 
 }
@@ -409,7 +414,7 @@ serverList.on('select', async(item,index) => {
 async function SpawnBot(bot) {
   return new Promise((resolve, reject) => {
     bot.on('spawn', () => {
-      SendNotification('Bot has spawned in the game.');
+      SendNotification('You spawned in the game.');
       resolve();
     });
 
@@ -451,7 +456,7 @@ function solveMathQuestion(question,bot) {
             SendChatMessage(bot, result);
           }, solveMathTimeout);
         }
-        SendNotification(`Solved math question: ${chalk.green.bold(match[0])} = ${chalk.yellow.bold(result)}`);
+        SendNotification(`${chalk.green.bold(match[0])} = ${chalk.yellow.bold(result)}`);
       }
 
     }
@@ -480,6 +485,19 @@ function ListenForMathQuestions(bot,message) {
       }
 }
 
+function ListenForUnscramble(message) {
+      if (config.chatInteraction.UnscrambleWords) {
+		let result = unscrambleWord(message,dict);
+      	if (result === undefined) {
+	  	  return;
+	  	}else {
+	  	  SendNotification(`Unscrambled word: ${result}`);
+	  	}
+
+	  }
+
+}
+
 async function ListenForChat(bot) {
 
 
@@ -489,6 +507,7 @@ async function ListenForChat(bot) {
     if (ignoreMyMessages ) {
       if (username === bot.username) {
         ListenForMathQuestions(bot,message);
+        ListenForUnscramble(message);
         return;
       };
     }
@@ -499,7 +518,6 @@ async function ListenForChat(bot) {
 
 
 
-      ListenForMathQuestions(bot,message);
 
   });
 
@@ -508,7 +526,7 @@ async function ListenForChat(bot) {
     let message = value.trim();
     if (value.trim() === "exit") {
           process.exit(0);
-    }else if(value.trim().startsWith("/addServer")) {
+    }else if(value.trim().startsWith("addServer")) {
       const parts = value.trim().split(' ');
       if (parts.length >= 2) {
         let server = parts[1];
@@ -529,7 +547,7 @@ async function ListenForChat(bot) {
         });
       }
       inputBox.focus();
-    }else if (value.trim().startsWith("/removeServer")){
+    }else if (value.trim().startsWith("removeServer")){
       const parts = value.trim().split(' ');
       let serverToRemove = parts[1];
       if (parts.length >= 2 && server_items.includes(serverToRemove)) {
@@ -545,16 +563,32 @@ async function ListenForChat(bot) {
 
         screen.render();
         fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
-      }else {
+      }else{
         if (serverToRemove === undefined) {
           serverToRemove = "";
         }
         SendNotification(`Server: '${serverToRemove}' not found! `);
-      }
+
+	  }
         inputBox.focus();
-    }else{
+    }else if (value.trim().startsWith("join")){
+			  const parts = value.trim().split(' ');
+			  if (parts.length >= 2) {
+				const serverName = parts[1];
+				ConnectToServer(serverName,config.user.name);
+				inputBox.clearValue();
+
+         }
+		 inputBox.focus();
+		 screen.render();
+    }else if(value.trim().startsWith("clear")){
+			box.setContent('');
+			inputBox.focus();
+		    inputBox.clearValue();
+
+	}else{
       SendChatMessage(bot,message);
-    }
+	}
 
 
     });
@@ -568,35 +602,35 @@ async function ListenForErrors(bot) {
   
   if (config.user.name === "") {
     if (!process.argv[1] || !process.argv[2] ) {
-      SendNotification("Please atleast enter a username. Ignore this if you are already logged in. ");
+      SendErrorNotification("Please atleast enter a username. Ignore this if you are already logged in. ");
     }
 
   }
 
   bot.on('kicked', (reason) => {
-    SendNotification(`Kicked from the server: ${reason.toString()}`);
+      SendErrorNotification(`Kicked from the server: ${reason.toString()}`);
   });
 
   bot.on('error', (err) => {
     if (err.name === "PartialReadError") {
       return;
     }else{
-      SendNotification(err);
+      SendErrorNotification(`${err}`);
     }
   });
 
 
   process.on('uncaughtException', (err) => {
-    SendNotification(`Uncaught: ${err.message}`);
+      SendErrorNotification(`Uncaught: ${err.message}`);
   });
   
   process.on('unhandledRejection', (reason) => {
-    SendNotification(`Unhandled: ${reason}`);
+      SendErrorNotification(`Unhandled: ${reason}`);
   });
 
   bot._client.on('error', (err) => {
     if (err.code === "ENOTFOUND") {
-      SendNotification("Server not found!");
+      SendErrorNotification("Server not found!");
       screen.render();
     }
     return;
