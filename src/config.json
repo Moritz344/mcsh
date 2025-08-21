@@ -7,13 +7,13 @@
     "solveMathTimeout": 1000,
     "sendAnswerAutomatically": false,
     "IgnoreOwnMessages": true,
-    "UnscrambleWords": false
+    "UnscrambleWords": true
   },
   "server": {
     "serverList": [
       "lifesteal.net",
-      "mc.hypixel.net",
-      "eu.minemen.club"
-    ]
+      "mcpvp.club"
+    ],
+    "scanForInvalidServer": true
   }
 }

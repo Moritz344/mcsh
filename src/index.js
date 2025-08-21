@@ -22,7 +22,11 @@ var minecraft_version = undefined;
 var minecraft_host = undefined;
 var minecraft_username = undefined;
 
-// TODO: react to mc chatgames // Linux dic: fs.readFileSync('/usr/share/dict/words')
+// TODO: react to mc chatgames 
+// TODO: option to turn off solving math questions without editing config.json
+// TODO: work on error handling
+// TODO: some servers gets deleted for some reason in the Scan
+// TODO: messagebox
 
 const operators = ['+', '-', '*', '/'];
 const configPath = path.resolve(__dirname, 'config.json');
@@ -72,8 +76,15 @@ function HandleCommander() {
     });
   program
     .command('showServerList')
-    .action((serverName) => {
-       console.log(config.server.serverList);
+    .action(() => {
+       let showServerList = config.server.serverList;
+       console.log("");
+       console.log(chalk.green.bold("","Your Serverlist:"));
+       console.log("");
+       for (let key in showServerList) {
+			   console.log("","-",showServerList[key]);
+	   }
+       console.log("");
        process.exit(0);
     });
 
@@ -86,13 +97,15 @@ HandleCommander();
 function WriteErrorsToNotificationBox() {
   // write errors in box instead to standard input
   console.log = (... args) => {
+
     screen.render();
   }
 
 }
 WriteErrorsToNotificationBox()
 
-async function checkIfMcServerExists(serverName) {
+async function checkIfMcServerExists(serverName) { 
+  // check if server exists if not delete it from list 
   try {
     const state = await GameDig.query({
       type: 'minecraft',
@@ -100,17 +113,13 @@ async function checkIfMcServerExists(serverName) {
     });
     return true;
   }catch(error) {
-    console.log("Server",serverName,"does not exist or is offline");
-    if (server_items.includes(serverName)) {
       SendErrorNotification("Exiting program. Invalid Server in config. Should be fixed after restart.");
-
       setTimeout( () => {
         console.clear();
         process.exit(0);
       },10000);
       removeServerFromJson(serverName);
 
-    }
     return false;
   }
 
@@ -120,7 +129,7 @@ function ScanServerList() {
   const listToCheck = config.server.serverList;
 
   for (let i=0;i<listToCheck.length;i++) {
-    let ex = checkIfMcServerExists(listToCheck[i]);
+    checkIfMcServerExists(listToCheck[i]);
   }
 
 
@@ -276,7 +285,11 @@ serverList = blessed.list({
   },
   items: server_items,
 });
-ScanServerList();
+
+if (config.server.scanForInvalidServer) {
+	ScanServerList();
+}
+
 async function main(username = minecraft_username,host_name = minecraft_host,version_number = minecraft_version) {
     console.clear();
 
@@ -387,7 +400,7 @@ serverList.on('select', async(item,index) => {
       if (fish.name === "ReferencedError") {
         SendNotification(`I said wait`);
       }
-      SendNotification(`Error catching fish ${fish} `);
+      SendNotification(`Error ${fish} `);
     }
   }else if(item.getText() === "Exit"){
     console.clear();
@@ -403,7 +416,7 @@ serverList.on('select', async(item,index) => {
   
   screen.append(box);
   
-  inputBox.focus();
+  //inputBox.focus();
   
   screen.render();
 
@@ -415,6 +428,7 @@ async function SpawnBot(bot) {
   return new Promise((resolve, reject) => {
     bot.on('spawn', () => {
       SendNotification('You spawned in the game.');
+      inputBox.focus();
       resolve();
     });
 
@@ -425,15 +439,14 @@ async function SpawnBot(bot) {
         SendNotification("PartialReadError");
         return;
       }else{
-        SendNotification(err);
+        SendNotification("Error",err);
       }
 
     });
 
 
     bot.on('end', (reason) => {
-      SendNotification(reason);
-
+      SendNotification("Bot disconnected :( ",reason);
 
     });
   });
@@ -486,15 +499,14 @@ function ListenForMathQuestions(bot,message) {
 }
 
 function ListenForUnscramble(message) {
-      if (config.chatInteraction.UnscrambleWords) {
-		let result = unscrambleWord(message,dict);
-      	if (result === undefined) {
+	  let result = unscrambleWord(message,dict);
+		if (result === undefined) {
 	  	  return;
 	  	}else {
 	  	  SendNotification(`Unscrambled word: ${result}`);
 	  	}
 
-	  }
+
 
 }
 
@@ -507,7 +519,6 @@ async function ListenForChat(bot) {
     if (ignoreMyMessages ) {
       if (username === bot.username) {
         ListenForMathQuestions(bot,message);
-        ListenForUnscramble(message);
         return;
       };
     }
@@ -540,6 +551,7 @@ async function ListenForChat(bot) {
 
             screen.render();
             fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
+		    inputBox.clearValue();
           }else if (server_items.includes(server)){
             SendNotification("This server is already in the list.");
           }
@@ -561,6 +573,7 @@ async function ListenForChat(bot) {
         SendNotification(`Removed Server '${serverToRemove}' `);
 
 
+		inputBox.clearValue();
         screen.render();
         fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
       }else{
@@ -586,7 +599,15 @@ async function ListenForChat(bot) {
 			inputBox.focus();
 		    inputBox.clearValue();
 
-	}else{
+	}else if (value.trim().startsWith("unscramble") && config.chatInteraction.UnscrambleWords){
+		  const parts = value.trim().split(' ');
+		  if (parts.length >= 2) {
+				const message = parts[1];
+				ListenForUnscramble(message);
+				inputBox.clearValue();
+				inputBox.focus();
+		}
+	}else {
       SendChatMessage(bot,message);
 	}
 
@@ -608,14 +629,14 @@ async function ListenForErrors(bot) {
   }
 
   bot.on('kicked', (reason) => {
-      SendErrorNotification(`Kicked from the server: ${reason.toString()}`);
+      SendErrorNotification(`Kicked from the server: ${reason}`);
   });
 
   bot.on('error', (err) => {
     if (err.name === "PartialReadError") {
       return;
     }else{
-      SendErrorNotification(`${err}`);
+      SendErrorNotification(`Error: ${err}`);
     }
   });
 
