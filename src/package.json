@@ -1,6 +1,6 @@
 {
   "name": "mcsh",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": " a lightweight cli tool that lets you connect to your favourite minecraft server via the terminal ",
   "main": "index.js",
   "bin": "./index.js",
@@ -8,37 +8,35 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "funding": {
-      "type": "individual",
-      "url": "https://ko-fi.com/moritz344"
-    },
-  "keywords": [],
-  "author": "",
+    "type": "individual",
+    "url": "https://ko-fi.com/moritz344"
+  },
+  "keywords": [
+    "minecraft",
+    "cli-tool",
+    "minecraft-bot"
+  ],
+  "author": "Moritz344",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "blessed": "^0.1.81",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
+    "gamedig": "^5.3.1",
+    "mcsh": "^1.0.2",
     "minecraft-data": "^3.94.0",
     "minecraft-protocol": "^1.60.0",
     "mineflayer": "^4.31.0",
-    "protodef": "^1.19.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "protodef": "^1.19.0",
+    "wordlist-english": "^1.2.1"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/Moritz344/mcsh.git"
   },
-  "keywords": [
-    "manga",
-    "download"
-  ],
-  "author": "Moritz344",
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Moritz344/dl-manga/issues"
+    "url": "https://github.com/Moritz344/mcsh/issues"
   },
-  "homepage": "https://github.com/Moritz344/dl-manga#readme"
+  "homepage": "https://github.com/Moritz344/mcsh#readme"
 }

@@ -9,6 +9,7 @@ const path = require('path');
 const { Command } = require('commander');
 const { GameDig } = require('gamedig');
 const { unscrambleWord } = require('./unscrambleWord.js');
+const { helperFunction } = require('./helper.js'); 
 
 const program = new Command();
 const pkg = JSON.parse(
@@ -25,8 +26,6 @@ var minecraft_username = undefined;
 // TODO: react to mc chatgames 
 // TODO: option to turn off solving math questions without editing config.json
 // TODO: work on error handling
-// TODO: some servers gets deleted for some reason in the Scan
-// TODO: messagebox
 
 const operators = ['+', '-', '*', '/'];
 const configPath = path.resolve(__dirname, 'config.json');
@@ -88,6 +87,13 @@ function HandleCommander() {
        process.exit(0);
     });
 
+  program
+		.command('helper')
+		.description("about this project and how it works.")
+		.action(() => {
+				helperFunction();
+		 });
+
 
   program.parse(process.argv);
 }
@@ -113,11 +119,7 @@ async function checkIfMcServerExists(serverName) {
     });
     return true;
   }catch(error) {
-      SendErrorNotification("Exiting program. Invalid Server in config. Should be fixed after restart.");
-      setTimeout( () => {
-        console.clear();
-        process.exit(0);
-      },10000);
+      SendErrorNotification("Removed Invalid Server.");
       removeServerFromJson(serverName);
 
     return false;
@@ -128,6 +130,7 @@ async function checkIfMcServerExists(serverName) {
 function ScanServerList() {
   const listToCheck = config.server.serverList;
 
+
   for (let i=0;i<listToCheck.length;i++) {
     checkIfMcServerExists(listToCheck[i]);
   }
@@ -137,15 +140,25 @@ function ScanServerList() {
 
 
 
-async function addServerToJson(name) {
+function addServerToJson(name) {
 
           if (!config.server.serverList.includes(name)) {
              config.server.serverList.push(name);
              fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
-             console.log(chalk.green.bold("Added Server:",name));
 
-             console.log(config.server.serverList);
-          }
+		     
+		     console.log("");
+             console.log(chalk.green.bold("Added Server:",name));
+		     console.log("");
+
+		     for (key in config.server.serverList) {
+				console.log("","-",config.server.serverList[key]);
+			 }
+		     console.log("");
+          }else {
+
+				  console.log(chalk.red.bold("This server is already in the list!"));
+		  }
 
 
 
@@ -159,14 +172,21 @@ function removeServerFromJson(name) {
 
           fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
           console.log(chalk.red("Removed Server:",name,));
+
+          const indexLocal = server_items.indexOf(name);
+		  serverList.clearItems();
+          server_items.splice(indexLocal ,1);
+          serverList.setItems(server_items);
+
+    	  screen.render();
+
       }else {
           console.log(chalk.red.bold("Nothing to remove!"));
       }
 }
 
 function SendErrorNotification(message,) {
-
-      box.pushLine(`${chalk.red('Error:')}: ${message}`);
+      box.pushLine(`${chalk.red('Error')}: ${message}`);
 		
 }
 
@@ -180,6 +200,7 @@ function SendNotification(message) {
     screen.render();
 
 }
+
 
 var screen = blessed.screen({
   smartCSR: true,
@@ -273,7 +294,7 @@ if (!server_list.includes(chalk.red.bold("Exit")) ) {
 }
 
 
-serverList = blessed.list({
+var serverList = blessed.list({
   parent: ServerListBox,
   width: "100%",
   height: "100%",
@@ -292,9 +313,6 @@ if (config.server.scanForInvalidServer) {
 
 async function main(username = minecraft_username,host_name = minecraft_host,version_number = minecraft_version) {
     console.clear();
-
-
-   
 
     if (!host_name || !version_number ) {
       host_name = configServerList[Math.floor(Math.random() * configServerList.length)];
@@ -328,11 +346,12 @@ async function main(username = minecraft_username,host_name = minecraft_host,ver
 }
 
 
-  (async () => {
+(async () => {
     bot = await main();
     config.user.name = bot.username;
     fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
-  })();
+ })();
+
 
 
 
@@ -411,14 +430,16 @@ serverList.on('select', async(item,index) => {
 
 
 
-  screen.append(ServerListBox);
-  screen.append(inputBox);
-  
-  screen.append(box);
-  
-  //inputBox.focus();
-  
-  screen.render();
+function addElementsToScreen() {
+		screen.append(ServerListBox);
+		screen.append(inputBox);
+		
+		screen.append(box);
+		
+		screen.render();
+
+}
+addElementsToScreen();
 
 
 
@@ -544,6 +565,7 @@ async function ListenForChat(bot) {
         checkIfMcServerExists(server).then(( exists) => {
           if (exists && !server_items.includes(server)) {
             SendNotification(`Added Server: ${server}`);
+		    inputBox.clearValue();
 
             config.server.serverList.splice(server_items.length - 1,0,server);
             server_items.splice(server_items.length - 1,0,server);
@@ -551,10 +573,12 @@ async function ListenForChat(bot) {
 
             screen.render();
             fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
-		    inputBox.clearValue();
           }else if (server_items.includes(server)){
             SendNotification("This server is already in the list.");
-          }
+          }else {
+				return;
+
+		  }
           inputBox.focus();
         });
       }
@@ -628,8 +652,8 @@ async function ListenForErrors(bot) {
 
   }
 
-  bot.on('kicked', (reason) => {
-      SendErrorNotification(`Kicked from the server: ${reason}`);
+  bot.on('kicked', (_) => {
+		SendErrorNotification(`You got kicked from the server :<`);
   });
 
   bot.on('error', (err) => {
