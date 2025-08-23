@@ -88,7 +88,7 @@ function HandleCommander() {
     });
 
   program
-		.command('helper')
+		.command('about')
 		.description("about this project and how it works.")
 		.action(() => {
 				helperFunction();
@@ -119,13 +119,14 @@ async function checkIfMcServerExists(serverName) {
     });
     return true;
   }catch(error) {
-      SendErrorNotification("Removed Invalid Server.");
+      SendErrorNotification(`Removed Invalid Server: ${serverName} `);
       removeServerFromJson(serverName);
 
     return false;
   }
 
 }
+
 
 function ScanServerList() {
   const listToCheck = config.server.serverList;
@@ -249,7 +250,8 @@ var inputBox = blessed.textbox({
   left: '0',
   width: '100%',
   height: 'shrink',
-  inputOnFocus: true,
+  mouse: true,
+  inputOnFocus:true,
   border: {
     type: "line",
   },
@@ -279,7 +281,7 @@ var ServerListBox = blessed.box({
     fg: 'white',
     bg: 'black',
     border: {
-      fg: 'white'
+      fg: 'cyan'
     }
   }
 
@@ -436,8 +438,10 @@ function addElementsToScreen() {
 		
 		screen.append(box);
 		
-		screen.render();
 
+		screen.key(['q', 'C-c'], () => process.exit(0));
+
+		screen.render();
 }
 addElementsToScreen();
 
