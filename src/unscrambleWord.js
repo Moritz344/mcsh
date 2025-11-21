@@ -1,8 +1,9 @@
-const wordList = require("wordlist-english");
+import wordList from 'wordlist-english';
 const words = wordList["english"];
-var dictWithWords = words;
+const dictWithWords = words;
 
-function unscrambleWord(word,dict) {
+
+export function unscrambleWord(word,dict) {
 		
 		let sorted = word.split("").sort().join("");
 
@@ -17,4 +18,3 @@ function unscrambleWord(word,dict) {
 }
 
 
-module.exports = { unscrambleWord };

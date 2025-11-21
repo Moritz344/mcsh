@@ -11,8 +11,9 @@
   },
   "server": {
     "serverList": [
-      "lifesteal.net",
-      "donutsmp.net"
+      "donutsmp.net",
+      "mcpvp.club",
+      "pvprivals.net"
     ],
     "scanForInvalidServer": true
   }

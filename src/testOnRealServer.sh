@@ -1,2 +1,1 @@
-
-node index.js  mcpvp.club pennti microsoft 1.21
+node index.js login pennti mcpvp.club 1.21

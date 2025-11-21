@@ -1,31 +1,43 @@
 #!/usr/bin/env node
 
-const { search, Separator, select, confirm, input, password, checkbox } = require('@inquirer/prompts');
-const mineflayer = require('mineflayer');
-const chalk = require('chalk').default;
-var blessed = require('blessed');
-const fs = require('fs');
-const path = require('path');
-const { Command } = require('commander');
-const { GameDig } = require('gamedig');
-const { unscrambleWord } = require('./unscrambleWord.js');
-const { helperFunction } = require('./helper.js'); 
+import { search, Separator, select, confirm, input, password, checkbox } from '@inquirer/prompts';
+import mineflayer from 'mineflayer';
+import chalk from 'chalk';
+import blessed from 'blessed';
+import fs from 'fs';
+import path from 'path';
+import { Command } from 'commander';
+import { GameDig } from 'gamedig';
+import { unscrambleWord } from './unscrambleWord.js';
+import { helperFunction } from './helper.js';
+
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const program = new Command();
+import wordList from "wordlist-english";
+const dict = wordList["english"];
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const pkg = JSON.parse(
-  fs.readFileSync(path.join(__dirname,'package.json'),'utf-8')
+  fs.readFileSync(path.join(__dirname, "package.json"), "utf-8"),
 );
 
-const wordList = require("wordlist-english");
-const dict = wordList["english"];
 
 var minecraft_version = undefined;
 var minecraft_host = undefined;
 var minecraft_username = undefined;
 
-// TODO: react to mc chatgames 
-// TODO: option to turn off solving math questions without editing config.json
-// TODO: work on error handling
+var bot = {
+  username: "",
+  host: "",
+  auth: ""
+};
+
+// INFO: this is horrible. also breaks often. I don't know if im gonna rewrite this.
+// INFO i think everything is fixed now
 
 const operators = ['+', '-', '*', '/'];
 const configPath = path.resolve(__dirname, 'config.json');
@@ -325,7 +337,7 @@ async function main(username = minecraft_username,host_name = minecraft_host,ver
     
 
 
-    var bot = mineflayer.createBot({
+    bot = mineflayer.createBot({
       host: host_name,
       username: username,
       auth: "microsoft",
@@ -338,18 +350,16 @@ async function main(username = minecraft_username,host_name = minecraft_host,ver
     serverList.setItems(server_items);
     screen.render();
 
-    await SpawnBot(bot);
-    await ListenForChat(bot);
-    await ListenForErrors(bot);
+    await SpawnBot();
+    await ListenForChat();
+    await ListenForErrors();
 
-
-    return bot;
 
 }
 
 
 (async () => {
-    bot = await main();
+    await main();
     config.user.name = bot.username;
     fs.writeFileSync(configPath,JSON.stringify(config,null,2),'utf-8');
  })();
@@ -359,6 +369,10 @@ async function main(username = minecraft_username,host_name = minecraft_host,ver
 
 
 async function ConnectToServer(host,name) {
+  if (!host || !name) {
+    SendErrorNotification("Username " + name + host +" or host is not defined");
+    return;
+  }
   if (bot) {
     try {
       bot.quit("Connecting");
@@ -366,21 +380,25 @@ async function ConnectToServer(host,name) {
 
     }catch(err) {
       SendErrorNotification("Error when connecting to server.");
+      return;
     }
 
+  } else {
+    SendErrorNotication("Bot is undefined");
+    return;
   }
 
 
-    bot = mineflayer.createBot({
+
+
+   bot = mineflayer.createBot({
       host: host,
       username: name,
       auth: "microsoft",
     });
 
-
-
-  await ListenForChat(bot);
-  await ListenForErrors(bot);
+  await ListenForChat();
+  await ListenForErrors();
 
   bot.once('login', () => {
     SendNotification(`Bot-Version: ${bot.version}`);
@@ -449,7 +467,7 @@ addElementsToScreen();
 
 
 
-async function SpawnBot(bot) {
+async function SpawnBot() {
   return new Promise((resolve, reject) => {
     bot.on('spawn', () => {
       SendNotification('You spawned in the game.');
@@ -470,8 +488,8 @@ async function SpawnBot(bot) {
     });
 
 
-    bot.on('end', (reason) => {
-      SendNotification("Bot disconnected :( ",reason);
+    bot.on('end', () => {
+      SendNotification("Bot disconnected :( ",);
 
     });
   });
@@ -483,7 +501,7 @@ async function SpawnBot(bot) {
 
 
 
-function solveMathQuestion(question,bot) {
+function solveMathQuestion(question) {
   if (/\d/.test(question)) {
     for (let operator of operators) {
       if (question.includes(operator)) {
@@ -491,7 +509,7 @@ function solveMathQuestion(question,bot) {
         var result = eval(match[0]);
         if (sendMathResult) {
           setTimeout(() => {
-            SendChatMessage(bot, result);
+            SendChatMessage(result);
           }, solveMathTimeout);
         }
         SendNotification(`${chalk.green.bold(match[0])} = ${chalk.yellow.bold(result)}`);
@@ -503,7 +521,7 @@ function solveMathQuestion(question,bot) {
 
 }
 
-async function SendChatMessage(bot,message) {
+async function SendChatMessage(message) {
    box.pushLine(`${chalk.yellow(bot.username)}: ${message}`);
    bot.chat(message);
    inputBox.focus();
@@ -515,7 +533,7 @@ async function SendChatMessage(bot,message) {
 function ListenForMathQuestions(bot,message) {
       if (solveMathQuestions) {
         try {
-          solveMathQuestion(message,bot);
+          solveMathQuestion(message);
         }catch (error) {
           SendNotification(`Error solving math question: ${chalk.red.bold(error.message)}`);
         }
@@ -535,7 +553,7 @@ function ListenForUnscramble(message) {
 
 }
 
-async function ListenForChat(bot) {
+async function ListenForChat() {
 
 
   bot.removeAllListeners("chat");
@@ -616,16 +634,16 @@ async function ListenForChat(bot) {
 			  const parts = value.trim().split(' ');
 			  if (parts.length >= 2) {
 				const serverName = parts[1];
-				ConnectToServer(serverName,config.user.name);
+        SendNotification(serverName + "" + config.user.name)
+				ConnectToServer(serverName,bot.username);
 				inputBox.clearValue();
-
-         }
+     }
 		 inputBox.focus();
 		 screen.render();
     }else if(value.trim().startsWith("clear")){
 			box.setContent('');
 			inputBox.focus();
-		    inputBox.clearValue();
+		  inputBox.clearValue();
 
 	}else if (value.trim().startsWith("unscramble") && config.chatInteraction.UnscrambleWords){
 		  const parts = value.trim().split(' ');
@@ -636,7 +654,7 @@ async function ListenForChat(bot) {
 				inputBox.focus();
 		}
 	}else {
-      SendChatMessage(bot,message);
+      SendChatMessage(message);
 	}
 
 
@@ -646,7 +664,7 @@ async function ListenForChat(bot) {
 }
 
 
-async function ListenForErrors(bot) {
+async function ListenForErrors() {
 
   
   if (config.user.name === "") {

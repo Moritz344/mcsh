@@ -1,6 +1,6 @@
-const chalk = require('chalk').default;
+import chalk from 'chalk';
 
-function helperFunction() {
+export function helperFunction() {
 		console.clear();
 		console.log("");
 		console.log(chalk.yellow.bold("Hello Stranger.") + " This is my second tui I'm building with " + chalk.yellow.bold("javascript."));
@@ -32,8 +32,4 @@ function helperFunction() {
 
 
 
-module.exports = {
-		helperFunction
-
-}
 
